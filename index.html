@@ -1,0 +1,263 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Calendar 2027</title>
+<meta name="theme-color" content="#0f1126">
+<meta name="description" content="2027 calendar with Indian festivals, moon phases and monthly phone wallpapers.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calendar 2027"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-screen phone app. Sticky header + segmented tabs, month pager with swipe, wallpapers as phone-shaped tiles. */
+:root{
+  --bg:#f6f4fa; --surface:#ffffff; --fg:#1a1d3a; --muted:#5d6280; --line:#e3e1ee;
+  --gold:#e0a419; --gold-ink:#3a2a00; --red:#c0262d; --red-bg:#fdebec;
+  --accent:#3b4cc0; --accent-ink:#ffffff; --tint:#eef0ff;
+  --display:'Fraunces','Bitstream Charter',Georgia,serif; --body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1126; --surface:#181b38; --fg:#eceefc; --muted:#a2a8cf; --line:#2a2e57;
+  --gold:#f6c445; --gold-ink:#2b1d00; --red:#ff8f96; --red-bg:#3a1c2c; --accent:#9fb0ff; --accent-ink:#0f1126; --tint:#1d2145; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1126; --surface:#181b38; --fg:#eceefc; --muted:#a2a8cf; --line:#2a2e57;
+  --gold:#f6c445; --gold-ink:#2b1d00; --red:#ff8f96; --red-bg:#3a1c2c; --accent:#9fb0ff; --accent-ink:#0f1126; --tint:#1d2145; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:560px;margin:0 auto;padding-block:16px 40px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:4px 2px 14px}
+h1{font-family:var(--display);font-size:34px;line-height:1;margin:0;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin-top:6px}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:16px}
+.tabs button{font:600 13px var(--body);color:var(--muted);background:none;border:0;border-radius:10px;padding:10px 6px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section[hidden]{display:none}
+/* month */
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.mhead h2{font-family:var(--display);font-size:28px;margin:0;line-height:1.05;text-align:center;flex:1;min-width:0}
+.mhead h2 small{display:block;font:600 11px var(--body);letter-spacing:.3em;color:var(--muted);margin-top:4px}
+.nav{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:18px;cursor:pointer;flex:none}
+.cal{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:18px;padding:10px 8px 12px;touch-action:pan-y}
+.g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.wd{font:600 10px var(--body);letter-spacing:.12em;color:var(--muted);padding:6px 0}
+.wd.s{color:var(--red)}
+.day{position:relative;aspect-ratio:1/1.08;border:0;border-radius:12px;background:none;color:var(--fg);font:600 16px var(--body);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;min-width:0}
+.day.s{color:var(--red)}
+.day.p{background:var(--gold);color:var(--gold-ink)}
+.day.f::after{content:"";position:absolute;inset:3px;border-radius:11px;border:2px solid var(--accent);pointer-events:none}
+.day.t{box-shadow:0 0 0 2px var(--fg)}
+.day[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.day .mo{height:8px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:12px 4px 0;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:50%;display:inline-block}
+.sw.p{background:var(--gold)}.sw.f{border:2px solid var(--accent)}.sw.s{background:var(--red)}
+.detail{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.detail h3{margin:0 0 6px;font-family:var(--display);font-size:20px}
+.detail p{margin:2px 0;color:var(--muted);font-size:14px}
+.chip{display:inline-block;font:600 12px var(--body);padding:4px 10px;border-radius:99px;margin:4px 6px 0 0;background:var(--tint);color:var(--fg)}
+.chip.p{background:var(--red-bg);color:var(--red)}
+h4{font:700 11px var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:22px 4px 8px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.list li{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;min-width:0}
+.list .dt{font:700 13px var(--body);min-width:52px;color:var(--accent);font-variant-numeric:tabular-nums}
+.list li.p .dt{color:var(--red)}
+.list .nm{flex:1;min-width:0;overflow-wrap:anywhere}
+.list .ds{font-size:12px;color:var(--muted)}
+/* wallpapers */
+.intro{color:var(--muted);font-size:14px;margin:0 4px 14px}
+.walls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.wt{border:0;background:none;padding:0;cursor:pointer;text-align:left;color:var(--fg);min-width:0}
+.wt img{display:block;width:100%;aspect-ratio:390/844;object-fit:cover;border-radius:18px;border:1px solid var(--line)}
+.wt span{display:block;font:600 13px var(--body);margin:6px 4px 0}
+.pdfs{display:grid;gap:8px}
+.pdf{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font:600 14px var(--body);color:var(--fg);cursor:pointer;text-align:left;width:100%}
+.pdf small{display:block;font:400 12px var(--body);color:var(--muted)}
+.pdf em{margin-left:auto;font-style:normal;color:var(--accent);font-size:13px}
+/* viewer */
+.ov{position:fixed;inset:0;z-index:20;background:rgba(8,9,22,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
+.ov[hidden]{display:none}
+.ov img{max-height:68vh;max-width:100%;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.ov .row{display:flex;gap:10px;width:100%;max-width:360px}
+.btn{flex:1;font:700 15px var(--body);border-radius:14px;padding:14px;border:0;cursor:pointer}
+.btn.pri{background:var(--gold);color:var(--gold-ink)}
+.btn.sec{background:rgba(255,255,255,.14);color:#fff}
+.ov p{color:#c9cdee;font-size:12.5px;margin:0;text-align:center;max-width:340px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:99px;font:600 13px var(--body);max-width:90vw;text-align:center}
+.toast[hidden]{display:none}
+.filters{display:flex;gap:8px;margin:0 2px 12px}
+.filters button{font:600 13px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 14px;border-radius:99px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.mh{font-family:var(--display);font-size:19px;margin:18px 4px 8px;display:flex;align-items:center;gap:8px}
+.mh i{width:10px;height:10px;border-radius:50%;display:inline-block}
+@media (prefers-reduced-motion:no-preference){.cal{transition:border-color .25s}}
+
+html,body{margin:0}body{min-height:100vh;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}.install{font:700 13px var(--body);background:var(--gold);color:var(--gold-ink);border:0;border-radius:99px;padding:10px 16px;cursor:pointer}.install[hidden]{display:none}.ios{margin:0 2px 14px;padding:10px 14px;border-radius:12px;background:var(--tint);color:var(--fg);font-size:13px}.ios[hidden]{display:none}
+</style></head><body>
+
+<div class="wrap">
+  <header>
+    <div><h1>Calendar 2027</h1><div class="sub">Festivals, moon phases and phone wallpapers</div></div><button class="install" id="install" hidden>Install app</button>
+  </header>
+  <div class="ios" id="ios" hidden>To add this to your home screen: tap the Share button, then <b>Add to Home Screen</b>.</div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="t-calendar" aria-selected="true" data-tab="calendar">Calendar</button>
+    <button role="tab" id="t-wallpapers" aria-selected="false" data-tab="wallpapers">Wallpapers</button>
+    <button role="tab" id="t-holidays" aria-selected="false" data-tab="holidays">Holidays</button>
+  </nav>
+
+  <section id="calendar" aria-labelledby="t-calendar">
+    <div class="mhead">
+      <button class="nav" id="prev" aria-label="Previous month">&#8592;</button>
+      <h2 id="mtitle"></h2>
+      <button class="nav" id="next" aria-label="Next month">&#8594;</button>
+    </div>
+    <div class="cal" id="cal"><div class="g" id="grid"></div></div>
+    <div class="legend">
+      <span><i class="sw p"></i>Public holiday</span><span><i class="sw f"></i>Festival</span><span><i class="sw s"></i>Sunday</span>
+      <span><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Full moon</span>
+      <span><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="currentColor"/></svg>New moon</span>
+    </div>
+    <div class="detail" id="detail"></div>
+    <h4>Coming up</h4>
+    <ul class="list" id="upnext"></ul>
+  </section>
+
+  <section id="wallpapers" aria-labelledby="t-wallpapers" hidden>
+    <p class="intro">One wallpaper for every month, sized for a phone lock screen. Tap one, save it, then set it as your wallpaper from Photos or Gallery.</p>
+    <div class="walls" id="walls"></div>
+    <h4>Print versions</h4>
+    <div class="pdfs" id="pdfs"></div>
+  </section>
+
+  <section id="holidays" aria-labelledby="t-holidays" hidden>
+    <div class="filters">
+      <button id="f-all" aria-pressed="true">All festivals</button>
+      <button id="f-pub" aria-pressed="false">Public holidays</button>
+    </div>
+    <div id="hlist"></div>
+  </section>
+</div>
+
+<div class="ov" id="ov" hidden role="dialog" aria-modal="true" aria-label="Wallpaper preview">
+  <img id="ovimg" alt="">
+  <div class="row"><button class="btn pri" id="ovsave">Save wallpaper</button><button class="btn sec" id="ovclose">Close</button></div>
+  <p id="ovnote">If saving does not start, press and hold the picture and choose Save image.</p>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DATA={"hol":[{"m":1,"d":1,"n":"New Year's Day","k":"F"},{"m":1,"d":14,"n":"Makar Sankranti","k":"F"},{"m":1,"d":15,"n":"Pongal","k":"F"},{"m":1,"d":15,"n":"Guru Govind Singh Jayanti","k":"F"},{"m":1,"d":26,"n":"Republic Day","k":"R"},{"m":2,"d":9,"n":"Ramadan Start","k":"F"},{"m":2,"d":11,"n":"Vasant Panchami","k":"F"},{"m":2,"d":19,"n":"Shivaji Jayanti","k":"F"},{"m":2,"d":20,"n":"Guru Ravidas Jayanti","k":"F"},{"m":3,"d":2,"n":"Maharishi Dayanand Saraswati Jayanti","k":"F"},{"m":3,"d":5,"n":"Jamat Ul-Vida","k":"F"},{"m":3,"d":6,"n":"Maha Shivaratri","k":"F"},{"m":3,"d":10,"n":"Ramzan Id","k":"R"},{"m":3,"d":22,"n":"Holi","k":"R"},{"m":3,"d":22,"n":"Dolyatra","k":"F"},{"m":3,"d":22,"n":"Holika Dahana","k":"F"},{"m":3,"d":26,"n":"Good Friday","k":"R"},{"m":3,"d":28,"n":"Easter Day","k":"F"},{"m":4,"d":7,"n":"Chaitra Sukhladi","k":"F"},{"m":4,"d":7,"n":"Ugadi","k":"F"},{"m":4,"d":7,"n":"Gudi Padwa","k":"F"},{"m":4,"d":7,"n":"Cheti Chand","k":"F"},{"m":4,"d":14,"n":"Vaisakhi","k":"F"},{"m":4,"d":14,"n":"Vishu","k":"F"},{"m":4,"d":14,"n":"Mesadi","k":"F"},{"m":4,"d":14,"n":"Ambedkar Jayanti","k":"F"},{"m":4,"d":15,"n":"Rama Navami","k":"R"},{"m":4,"d":15,"n":"Bahag Bihu (Assam)","k":"F"},{"m":4,"d":15,"n":"Vaisakhadi (Bengal)","k":"F"},{"m":4,"d":19,"n":"Mahavir Jayanti","k":"R"},{"m":5,"d":9,"n":"Birthday of Rabindranath","k":"F"},{"m":5,"d":17,"n":"Bakrid","k":"R"},{"m":5,"d":20,"n":"Buddha Purnima","k":"R"},{"m":6,"d":16,"n":"Muharram/Ashura","k":"R"},{"m":7,"d":5,"n":"Rath Yatra","k":"F"},{"m":8,"d":15,"n":"Independence Day","k":"R"},{"m":8,"d":15,"n":"Milad un-Nabi","k":"R"},{"m":8,"d":15,"n":"Parsi New Year","k":"F"},{"m":8,"d":17,"n":"Raksha Bandhan","k":"F"},{"m":8,"d":25,"n":"Janmashtami","k":"R"},{"m":8,"d":25,"n":"Janmashtami (Smarta)","k":"F"},{"m":9,"d":4,"n":"Ganesh Chaturthi","k":"F"},{"m":9,"d":12,"n":"Onam","k":"F"},{"m":9,"d":30,"n":"First Day of Sharad Navratri","k":"F"},{"m":10,"d":2,"n":"Mahatma Gandhi Jayanti","k":"R"},{"m":10,"d":5,"n":"First Day of Durga Puja Festivities","k":"F"},{"m":10,"d":6,"n":"Maha Saptami","k":"F"},{"m":10,"d":7,"n":"Maha Ashtami","k":"F"},{"m":10,"d":8,"n":"Maha Navami","k":"F"},{"m":10,"d":9,"n":"Dussehra","k":"R"},{"m":10,"d":15,"n":"Maharishi Valmiki Jayanti","k":"F"},{"m":10,"d":18,"n":"Karaka Chaturthi","k":"F"},{"m":10,"d":28,"n":"Naraka Chaturdasi","k":"F"},{"m":10,"d":29,"n":"Diwali / Deepavali","k":"R"},{"m":10,"d":30,"n":"Govardhan Puja","k":"F"},{"m":10,"d":31,"n":"Bhai Duj","k":"F"},{"m":11,"d":4,"n":"Chhat Puja (Pratihar Sashthi / Surya Sashthi)","k":"F"},{"m":11,"d":14,"n":"Guru Nanak Jayanti","k":"R"},{"m":11,"d":24,"n":"Guru Tegh Bahadur's Martyrdom Day","k":"F"},{"m":12,"d":12,"n":"Hazrat Ali's Birthday","k":"F"},{"m":12,"d":24,"n":"Christmas Eve","k":"F"},{"m":12,"d":25,"n":"Christmas","k":"R"}],"moon":[{"m":1,"d":8,"p":"N"},{"m":1,"d":16,"p":"Q1"},{"m":1,"d":22,"p":"F"},{"m":1,"d":29,"p":"Q3"},{"m":2,"d":6,"p":"N"},{"m":2,"d":14,"p":"Q1"},{"m":2,"d":21,"p":"F"},{"m":2,"d":28,"p":"Q3"},{"m":3,"d":8,"p":"N"},{"m":3,"d":15,"p":"Q1"},{"m":3,"d":22,"p":"F"},{"m":3,"d":30,"p":"Q3"},{"m":4,"d":7,"p":"N"},{"m":4,"d":14,"p":"Q1"},{"m":4,"d":21,"p":"F"},{"m":4,"d":29,"p":"Q3"},{"m":5,"d":6,"p":"N"},{"m":5,"d":13,"p":"Q1"},{"m":5,"d":20,"p":"F"},{"m":5,"d":28,"p":"Q3"},{"m":6,"d":5,"p":"N"},{"m":6,"d":11,"p":"Q1"},{"m":6,"d":19,"p":"F"},{"m":6,"d":27,"p":"Q3"},{"m":7,"d":4,"p":"N"},{"m":7,"d":11,"p":"Q1"},{"m":7,"d":18,"p":"F"},{"m":7,"d":26,"p":"Q3"},{"m":8,"d":2,"p":"N"},{"m":8,"d":9,"p":"Q1"},{"m":8,"d":17,"p":"F"},{"m":8,"d":25,"p":"Q3"},{"m":8,"d":31,"p":"N"},{"m":9,"d":8,"p":"Q1"},{"m":9,"d":16,"p":"F"},{"m":9,"d":23,"p":"Q3"},{"m":9,"d":30,"p":"N"},{"m":10,"d":7,"p":"Q1"},{"m":10,"d":15,"p":"F"},{"m":10,"d":22,"p":"Q3"},{"m":10,"d":29,"p":"N"},{"m":11,"d":6,"p":"Q1"},{"m":11,"d":14,"p":"F"},{"m":11,"d":21,"p":"Q3"},{"m":11,"d":28,"p":"N"},{"m":12,"d":6,"p":"Q1"},{"m":12,"d":13,"p":"F"},{"m":12,"d":20,"p":"Q3"},{"m":12,"d":28,"p":"N"}],"pal":[{"lite":"#a8700a","dark":"#3b6f8f","tint":"#eef3f8","c1":"#1b2a4e"},{"lite":"#b83a5c","dark":"#d4607a","tint":"#fdf3e3","c1":"#e9a23b"},{"lite":"#8a2a8f","dark":"#d1459a","tint":"#f9edf6","c1":"#6a2c91"},{"lite":"#c4510b","dark":"#f6b93b","tint":"#fff3df","c1":"#e8731a"},{"lite":"#b0356a","dark":"#7fb7a4","tint":"#fbeef3","c1":"#d96c9a"},{"lite":"#2f6d8f","dark":"#8fb0c7","tint":"#edf3f7","c1":"#3b5b7a"},{"lite":"#1f7a5a","dark":"#6fae8c","tint":"#edf6f1","c1":"#1f5d4a"},{"lite":"#c4600b","dark":"#8fd0e8","tint":"#eef6fb","c1":"#2a6fb0"},{"lite":"#b3263f","dark":"#f0a35e","tint":"#fdeeea","c1":"#c9485b"},{"lite":"#a31d2e","dark":"#e0902c","tint":"#fbefe6","c1":"#7a1523"},{"lite":"#9a4a14","dark":"#d9a441","tint":"#faf0e0","c1":"#8b4a1d"},{"lite":"#2f5da8","dark":"#4a6fa5","tint":"#eaf0f8","c1":"#14213d"}],"months":["January","February","March","April","May","June","July","August","September","October","November","December"]};
+const Y=2027, MN=DATA.months, SL=MN.map(m=>m.slice(0,3).toLowerCase());
+const $=id=>document.getElementById(id);
+const hol={}, moon={};
+DATA.hol.forEach(h=>{(hol[h.m+'-'+h.d]=hol[h.m+'-'+h.d]||[]).push(h)});
+DATA.moon.forEach(x=>moon[x.m+'-'+x.d]=x.p);
+const PHN={N:'New moon',Q1:'First quarter moon',F:'Full moon',Q3:'Last quarter moon'};
+const now=new Date(), inYear=now.getFullYear()===Y;
+let cur=inYear?now.getMonth():0, sel=inYear?now.getDate():1;
+const dark=()=>{const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+function moonSvg(p){
+  if(p==='F')return '<svg class="mo" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><circle cx="4" cy="4" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+  if(p==='N')return '<svg class="mo" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><circle cx="4" cy="4" r="3.4" fill="currentColor"/></svg>';
+  if(p==='Q1')return '<svg class="mo" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><path d="M4 .6A3.4 3.4 0 0 1 4 7.4Z" fill="currentColor"/></svg>';
+  if(p==='Q3')return '<svg class="mo" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><path d="M4 .6A3.4 3.4 0 0 0 4 7.4Z" fill="currentColor"/></svg>';
+  return '<span class="mo"></span>';
+}
+function setAccent(){
+  const p=DATA.pal[cur];
+  document.documentElement.style.setProperty('--accent',dark()?p.dark:p.lite);
+  document.documentElement.style.setProperty('--accent-ink',dark()?'#0f1126':'#ffffff');
+  document.documentElement.style.setProperty('--tint',dark()?'#1d2145':p.tint);
+}
+function render(){
+  setAccent();
+  $('mtitle').innerHTML=MN[cur]+'<small>'+Y+'</small>';
+  const first=new Date(Y,cur,1).getDay(), n=new Date(Y,cur+1,0).getDate();
+  let h='';
+  'SMTWTFS'.split('').forEach((l,i)=>h+='<div class="wd'+(i===0?' s':'')+'">'+l+'</div>');
+  for(let i=0;i<first;i++)h+='<div></div>';
+  for(let d=1;d<=n;d++){
+    const k=(cur+1)+'-'+d, hs=hol[k]||[], pub=hs.some(x=>x.k==='R'), wd=(first+d-1)%7;
+    const c=['day']; if(wd===0)c.push('s'); if(pub)c.push('p'); else if(hs.length)c.push('f');
+    if(inYear&&now.getMonth()===cur&&now.getDate()===d)c.push('t');
+    const lab=d+' '+MN[cur]+(hs.length?', '+hs.map(x=>x.n).join(', '):'')+(moon[k]?', '+PHN[moon[k]]:'');
+    h+='<button class="'+c.join(' ')+'" data-d="'+d+'" aria-pressed="'+(d===sel)+'" aria-label="'+lab.replace(/"/g,'&quot;')+'"><span>'+d+'</span>'+moonSvg(moon[k])+'</button>';
+  }
+  $('grid').innerHTML=h;
+  detail();
+}
+function detail(){
+  const k=(cur+1)+'-'+sel, hs=hol[k]||[], wd=new Date(Y,cur,sel).toLocaleDateString('en-IN',{weekday:'long'});
+  let h='<h3>'+wd+', '+sel+' '+MN[cur]+'</h3>';
+  if(hs.length)h+=hs.map(x=>'<span class="chip'+(x.k==='R'?' p':'')+'">'+x.n+(x.k==='R'?' · public holiday':'')+'</span>').join('');
+  else h+='<p>No festival on this day.</p>';
+  if(moon[k])h+='<p>'+PHN[moon[k]]+'</p>';
+  $('detail').innerHTML=h;
+}
+function up(){
+  const ref=inYear?now:new Date(Y,0,1); ref.setHours(0,0,0,0);
+  const L=DATA.hol.filter(h=>new Date(Y,h.m-1,h.d)>=ref).sort((a,b)=>a.m-b.m||a.d-b.d||(a.k==='R'?-1:1));
+  const pub=L.filter(h=>h.k==='R').slice(0,5);
+  $('upnext').innerHTML=pub.map(h=>{
+    const days=Math.round((new Date(Y,h.m-1,h.d)-ref)/864e5);
+    return '<li class="p"><span class="dt">'+h.d+' '+MN[h.m-1].slice(0,3)+'</span><span class="nm">'+h.n+'</span><span class="ds">'+(inYear?(days===0?'Today':days+' days'):'')+'</span></li>';
+  }).join('');
+}
+function hl(onlyPub){
+  let h='';
+  for(let m=1;m<=12;m++){
+    const L=DATA.hol.filter(x=>x.m===m&&(!onlyPub||x.k==='R')).sort((a,b)=>a.d-b.d);
+    if(!L.length)continue;
+    h+='<div class="mh"><i style="background:'+(dark()?DATA.pal[m-1].dark:DATA.pal[m-1].lite)+'"></i>'+MN[m-1]+'</div><ul class="list">'+L.map(x=>'<li class="'+(x.k==='R'?'p':'')+'"><span class="dt">'+x.d+' '+MN[m-1].slice(0,3)+'</span><span class="nm">'+x.n+'</span></li>').join('')+'</ul>';
+  }
+  $('hlist').innerHTML=h;
+}
+/* wallpapers */
+let dl=null, ovIdx=0;
+const fileOf=i=>'wall/calendar-2027-'+String(i+1).padStart(2,'0')+'-'+SL[i]+'.jpg';
+$('walls').innerHTML=MN.map((m,i)=>'<button class="wt" data-i="'+i+'"><img loading="lazy" src="thumb/'+SL[i]+'.jpg" alt="'+m+' 2027 wallpaper"><span>'+m+'</span></button>').join('');
+const PDFS=[['Calendar_2027_Gift_Edition.pdf','Gift edition','12 months, A4 landscape, 15 pages'],['Calendar_2027_Wheel_Poster_A3.pdf','Wheel of the Year poster','The whole year in one circle, A3'],['Calendar_2027_Desk_Flip_Cards.pdf','Desk flip cards','12 fold-and-stand cards with a wish each']];
+$('pdfs').innerHTML=PDFS.map((p,i)=>'<button class="pdf" data-p="'+i+'"><span>'+p[1]+'<small>'+p[2]+'</small></span><em>Save</em></button>').join('');
+function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,3200)}
+function save(url,name){
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  toast('Saving. If nothing happens, press and hold the picture and choose Save image.');
+}
+$('walls').addEventListener('click',e=>{const b=e.target.closest('.wt');if(!b)return;ovIdx=+b.dataset.i;$('ovimg').src=fileOf(ovIdx);$('ovimg').alt=MN[ovIdx]+' 2027 wallpaper';$('ov').hidden=false;$('ovsave').focus()});
+$('ovclose').onclick=()=>$('ov').hidden=true;
+$('ov').addEventListener('click',e=>{if(e.target===$('ov'))$('ov').hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('ov').hidden=true});
+$('ovsave').onclick=()=>save(fileOf(ovIdx),fileOf(ovIdx).split('/').pop());
+$('pdfs').addEventListener('click',e=>{const b=e.target.closest('.pdf');if(!b)return;const p=PDFS[+b.dataset.p];save(p[0],p[0])});
+/* nav */
+function go(d){cur=(cur+d+12)%12;sel=1;render()}
+$('prev').onclick=()=>go(-1);$('next').onclick=()=>go(1);
+$('grid').addEventListener('click',e=>{const b=e.target.closest('.day');if(!b)return;sel=+b.dataset.d;
+  $('grid').querySelectorAll('.day').forEach(x=>x.setAttribute('aria-pressed',x===b));detail()});
+let sx=null;
+$('cal').addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
+$('cal').addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>60)go(dx<0?1:-1)});
+function tab(n){
+  ['calendar','wallpapers','holidays'].forEach(t=>{$(t).hidden=t!==n;$('t-'+t).setAttribute('aria-selected',t===n)});
+  if(location.hash!=='#'+n)history.replaceState(null,'','#'+n);
+}
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)tab(b.dataset.tab)});
+$('f-all').onclick=()=>{$('f-all').setAttribute('aria-pressed',true);$('f-pub').setAttribute('aria-pressed',false);hl(false)};
+$('f-pub').onclick=()=>{$('f-pub').setAttribute('aria-pressed',true);$('f-all').setAttribute('aria-pressed',false);hl(true)};
+addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(['calendar','wallpapers','holidays'].includes(h))tab(h)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{render();hl($('f-pub').getAttribute('aria-pressed')==='true')});
+render();up();hl(false);
+{const h=location.hash.slice(1);if(['calendar','wallpapers','holidays'].includes(h))tab(h)}
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+let ev=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;$('install').hidden=false});
+$('install').onclick=async()=>{if(!ev)return;ev.prompt();try{await ev.userChoice}catch(_){}ev=null;$('install').hidden=true};
+addEventListener('appinstalled',()=>{$('install').hidden=true});
+const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone)$('ios').hidden=false;
+</script>
